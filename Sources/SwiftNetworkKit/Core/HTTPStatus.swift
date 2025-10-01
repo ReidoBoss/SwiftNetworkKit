@@ -32,18 +32,18 @@ extension HTTPStatus {
     /// the HTTPStatus of the `Int`
     /// returns `nil` if no match is found
     static func from(statusCode: Int) -> Self? {
-        return Self.allCases.first { $0.rawValue == statusCode }
+        Self.allCases.first { $0.rawValue == statusCode }
     }
 }
 // MARK: Typecast helper
 extension HTTPStatus {
 
     func asSuccess() -> HTTPStatusSuccess? {
-        return self as? HTTPStatusSuccess
+        self as? HTTPStatusSuccess
     }
 
     func asError() -> HTTPStatusError? {
-        return self as? HTTPStatusError
+        self as? HTTPStatusError
     }
 
 }
