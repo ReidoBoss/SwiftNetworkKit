@@ -37,11 +37,11 @@ extension HTTPStatus {
 }
 // MARK: Typecast helper
 extension HTTPStatus {
-
+    /// returns the HTTPStatus as a `HTTPStatusSuccess` if possible
     func asSuccess() -> HTTPStatusSuccess? {
         self as? HTTPStatusSuccess
     }
-
+    /// returns the HTTPStatus as a `HTTPStatusRedirection` if possible
     func asError() -> HTTPStatusError? {
         self as? HTTPStatusError
     }
