@@ -1,0 +1,16 @@
+name: Pull Request Commit Lint
+
+on: pull_request
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run commitlint on PR commits
+        run: npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=${{ github.sha }}
