@@ -32,10 +32,7 @@ https://github.com/reidoboss/SwiftNetworkKit.git
 ## Quick Start
 
 Basic POST request example:
-
 ```swift
-import SwiftNetworkKit
-
 struct User: Encodable {
     let name: String
     let email: String
@@ -45,6 +42,10 @@ struct UserResponse: Decodable {
     let id: UUID
     let name: String
 }
+```
+
+```swift
+import SwiftNetworkKit
 
 let user = User(
     name: "Stephen T. Sagarino Jr.",
@@ -54,6 +55,30 @@ let url = URL(string: "http://your.api/post")!
 
 let response = await SNK
     .request(url: url)
+    .jsonContentType()
+    .body(user)
+    .post(validateBodyAs: UserResponse.self)
+
+if let userData = response.data {
+    print("User ID: \(userData.id), Name: \(userData.name)")
+} else if let error = response.error {
+    print("Error: \(error)")
+}
+```
+POST Example same above but with Base URL
+```swift
+import SwiftNetworkKit
+
+let url = URL(string: "https://your.api")!
+
+let customSNK = SNKSession(
+    urlSession: .shared,
+    baseURL: url
+)
+
+let response =
+    try await customSNK
+    .request(path: "/post")
     .jsonContentType()
     .body(user)
     .post(validateBodyAs: UserResponse.self)
