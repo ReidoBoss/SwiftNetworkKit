@@ -7,6 +7,10 @@ Thank you for your interest in contributing to this project!
 - Xcode 16.0 or later
 - macOS
 
+## Commits
+Make sure to use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+
 ## Development Setup
 
 1. Clone this repository.
