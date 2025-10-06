@@ -6,10 +6,10 @@ import PackageDescription
 let package = Package(
     name: "SwiftNetworkKit",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v13),
         .tvOS(.v12),
         .watchOS(.v9),
-        .iOS(.v12),
+        .iOS(.v16),
         .visionOS(.v1),
     ],
     products: [
