@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal protocol HTTPStatus:
+public protocol HTTPStatus:
     Decodable,
     RawRepresentable<Int>,
     CaseIterable
@@ -23,15 +23,14 @@ internal protocol HTTPStatus:
 
 // MARK: computed variable helpers
 extension HTTPStatus {
-    var code: Int { return self.rawValue }
+    public var code: Int { return self.rawValue }
 }
 
 // MARK: static function helpers
 extension HTTPStatus {
-
     /// the HTTPStatus of the `Int`
     /// returns `nil` if no match is found
-    static func from(statusCode: Int) -> Self? {
+    public static func from(statusCode: Int) -> Self? {
         Self.allCases.first { $0.rawValue == statusCode }
     }
 }
