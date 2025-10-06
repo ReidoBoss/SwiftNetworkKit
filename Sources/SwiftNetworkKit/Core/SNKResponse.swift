@@ -132,7 +132,7 @@ extension SNKResponse {
     /// ```
     public var isSuccessful: Bool {
         return data != nil && error == nil
-            && ((status?.asSuccess() != nil) ?? false)
+            && ((status?.asSuccess() != nil))
     }
 
     /// The HTTP status code from the response.

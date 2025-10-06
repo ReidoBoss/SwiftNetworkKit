@@ -11,29 +11,29 @@ import Foundation
 open class SNKDataRequest: @unchecked Sendable {
 
     /// the URLSession used to perform the request
-    internal(set) var urlSession: URLSession
+    var urlSession: URLSession
     /// the URLRequest used for the request
-    internal(set) var urlRequest: URLRequest
+    var urlRequest: URLRequest
     /// the headers of the request
     /// default is nil
     /// use the `headers(_:)` function to set
-    internal(set) var headers: [String: String]?
+    var headers: [String: String]?
     /// the parameters of the request
     /// default is nil
     /// use the `queryParams(_:)` function to set
-    internal(set) var queryParams: [String: String]?
+    var queryParams: [String: String]?
     /// the body of the request
     /// default is nil
     /// use the `body(_:)` function to set
-    internal(set) var body: Encodable?
+    var body: Encodable?
     /// the decoder used to decode the response
     /// default is JSONDecoder()
     /// use the `decoder(_:)` function to set
-    internal(set) var decoder: JSONDecoder = JSONDecoder()
+    var decoder: JSONDecoder = JSONDecoder()
     /// the encoder used to encode the request body
     /// default is JSONEncoder()
     /// use the `encoder(_:)` function to set
-    internal(set) var encoder: JSONEncoder = JSONEncoder()
+    var encoder: JSONEncoder = JSONEncoder()
 
     init(
         _ url: URL,
@@ -530,7 +530,7 @@ extension SNKDataRequest {
     ///     .encoder(customEncoder)
     ///     .post()
     /// ```
-    open func encoder(
+    public func encoder(
         _ encoder: JSONEncoder
     ) -> SNKDataRequest {
         self.encoder = encoder
@@ -556,7 +556,7 @@ extension SNKDataRequest {
     ///     .post()
     /// ```
     ///
-    open func decoder(
+    public func decoder(
         _ decoder: JSONDecoder
     ) -> SNKDataRequest {
         self.decoder = decoder
@@ -584,7 +584,7 @@ extension SNKDataRequest {
     /// ```
     ///
     /// - Important: Setting headers will replace any previously set headers. To add individual headers, use `addHeader(_:value:)` method.
-    open func headers(_ headers: [String: String]) -> SNKDataRequest {
+    public func headers(_ headers: [String: String]) -> SNKDataRequest {
         self.headers = headers
         return self
     }
@@ -618,7 +618,7 @@ extension SNKDataRequest {
     /// ```
     ///
     /// - Note: This method is preferred over `headers(_:)` when you need to build headers incrementally.
-    open func addHeader(_ field: String, value: String) -> SNKDataRequest {
+    public func addHeader(_ field: String, value: String) -> SNKDataRequest {
         if var headers {
             headers.updateValue(value, forKey: field)
         } else {
@@ -648,7 +648,7 @@ extension SNKDataRequest {
     /// ```
     ///
     /// - Warning: Existing query parameters in the original URL may be overwritten.
-    open func queryParams(_ queryParams: [String: String]) -> SNKDataRequest {
+    public func queryParams(_ queryParams: [String: String]) -> SNKDataRequest {
         self.queryParams = queryParams
         return self
     }
@@ -679,7 +679,7 @@ extension SNKDataRequest {
     /// ```
     ///
     /// - Note: This method is preferred over `queryParams(_:)` when you need to build parameters incrementally.
-    open func addQueryParams(
+    public func addQueryParams(
         _ key: String,
         value: String
     ) -> SNKDataRequest {
@@ -723,7 +723,7 @@ extension SNKDataRequest {
     /// ```
     ///
     /// - Important: Ensure the Content-Type header matches the format of your body data.
-    open func body(_ body: Encodable) -> SNKDataRequest {
+    public func body(_ body: Encodable) -> SNKDataRequest {
         self.body = body
         return self
     }
