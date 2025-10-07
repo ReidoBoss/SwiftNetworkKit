@@ -10,48 +10,67 @@ import Foundation
 open class SNKDataRequest: @unchecked Sendable {
 
     /// the URLSession used to perform the request
-    var urlSession: URLSession
-    /// the URLRequest used for the request
-    var urlRequest: URLRequest
+    internal var urlSession: URLSession
+    /// the URL used for the request
+    internal var url: URL
     /// the headers of the request
     /// - default is `nil`
     /// - use the `headers(_:)` function to set
-    var headers: [String: String]?
+    internal var headers: [String: String]?
     /// the parameters of the request
     /// - default is `nil`
     /// - use the `queryParams(_:)` function to set
-    var queryParams: [String: String]?
+    internal var queryParams: [String: String]?
     /// the body of the request
     /// - default is `nil`
     /// - use the `body(_:)` function to set
-    var body: Encodable?
+    internal var body: Encodable?
     /// the decoder used to decode the response
     /// - default is `JSONDecoder()`
     /// - use the `decoder(_:)` function to set
-    var decoder: JSONDecoder = JSONDecoder()
+    internal var decoder: JSONDecoder = JSONDecoder()
     /// the encoder used to encode the request body
     /// - Default:  `JSONEncoder()`
     /// - use the `encoder(_:)` function to set
-    var encoder: JSONEncoder = JSONEncoder()
-    /// The Content-Type of the request body.
-    /// - Default: `.json` is used by default.
-    /// - Set using the `contentType(_:)` method.
-    var contentType: SwiftNetworkKit.ContentType = .json
+    internal var encoder: JSONEncoder = JSONEncoder()
     /// The timeout interval for the request.
     /// - Default: `nil`, which uses the URLSession's default timeout.
     /// - Set using the `timeoutInterval(_:)` method.
-    var timeoutInterval: TimeInterval?
+    internal var timeoutInterval: TimeInterval?
     /// The cache policy for the request.
     /// - Default: `nil`, which uses the URLSession's default cache policy.
     /// - Set using the `cachePolicy(_:)` method.
-    var cachePolicy: URLRequest.CachePolicy?
+    internal var cachePolicy: URLRequest.CachePolicy?
+    /// The URLCredential for authentication.
+    /// - Default: `nil`, which means no credential is used.
+    /// - Set using the `credential(_:)` method.
+    internal var credential: URLCredential?
 
-    init(
+    internal init(
         _ url: URL,
         urlSession: URLSession
     ) {
-        self.urlRequest = URLRequest(url: url)
+        self.url = url
         self.urlSession = urlSession
+    }
+
+    /// sets the URLCredential for authentication
+    ///
+    /// Use this method to provide credentials for HTTP Basic Auth.
+    ///
+    /// - Parameter credential: The `URLCredential` containing the username and password.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let credential = URLCredential(user: "username", password: "password", persistence: .forSession)
+    /// let request = SNKDataRequest(url)
+    ///    .urlCredential(credential)
+    ///    .get()
+    /// ```
+    func urlCredential(_ credential: URLCredential) -> SNKDataRequest {
+        self.credential = credential
+        return self
     }
 
     /// Sets the cache policy for the request.
@@ -116,7 +135,7 @@ open class SNKDataRequest: @unchecked Sendable {
     public func contentType(
         _ contentType: SwiftNetworkKit.ContentType
     ) -> SNKDataRequest {
-        self.contentType = contentType
+        self.addHeader("Content-Type", value: contentType.rawValue)
         return self
     }
 
@@ -931,7 +950,7 @@ extension SNKDataRequest {
     ///
     /// - Important: This method should only be called after all request configuration is complete.
     fileprivate func request(_ method: HTTPMethod) throws -> URLRequest {
-        var request = self.urlRequest
+        var request = URLRequest(url: self.url)
 
         guard request.url != nil
         else { throw URLError(.badURL) }
@@ -942,8 +961,6 @@ extension SNKDataRequest {
 
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = self.headers
-
-        self.addHeader("Content-Type", value: self.contentType.rawValue)
 
         if let timeoutInterval = self.timeoutInterval {
             request.timeoutInterval = timeoutInterval
