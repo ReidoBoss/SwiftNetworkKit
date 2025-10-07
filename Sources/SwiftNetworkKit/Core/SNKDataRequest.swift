@@ -63,6 +63,33 @@ open class SNKDataRequest: @unchecked Sendable {
     ///
     /// ## Example
     /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///    .urlCredential(user: "user", password: "password")
+    ///    .get()
+    /// ```
+    func urlCredential(
+        user: String,
+        password: String,
+        persistence: URLCredential.Persistence = .forSession
+    ) -> SNKDataRequest {
+        let URLCredential = URLCredential(
+            user: user,
+            password: password,
+            persistence: persistence
+        )
+        self.credential = URLCredential
+        return self
+    }
+
+    /// sets the URLCredential for authentication
+    ///
+    /// Use this method to provide credentials for HTTP Basic Auth.
+    ///
+    /// - Parameter credential: The `URLCredential` containing the username and password.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
     /// let credential = URLCredential(user: "username", password: "password", persistence: .forSession)
     /// let request = SNKDataRequest(url)
     ///    .urlCredential(credential)
