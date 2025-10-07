@@ -55,7 +55,6 @@ let url = URL(string: "http://your.api/post")!
 
 let response = await SNK
     .request(url: url)
-    .jsonContentType()
     .body(user)
     .post(validateBodyAs: UserResponse.self)
 
@@ -79,7 +78,6 @@ let customSNK = SNKSession(
 let response =
     try await customSNK
     .request(path: "/post")
-    .jsonContentType()
     .body(user)
     .post(validateBodyAs: UserResponse.self)
 
