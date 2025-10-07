@@ -90,7 +90,7 @@ struct ContentView: View {
         let response =
             await SNK
             .request(url: URL(string: "https://httpbin.org/post")!)
-            .jsonContentType()
+            .contentType(.json)  // no need to write this, .json is already default
             .body(testData)
             .post(validateBodyAs: HttpBinResponse.self)
 
@@ -120,7 +120,7 @@ struct ContentView: View {
         let response =
             await SNK
             .request(url: URL(string: "https://httpbin.org/post")!)
-            .formContentType()
+            .contentType(.formURLEncoded)
             .body(formData)
             .post(validateBodyAs: HttpBinResponse.self)
 
@@ -219,7 +219,7 @@ struct ContentView: View {
         let response =
             await SNK
             .request(url: URL(string: "https://httpbin.org/post")!)
-            .xmlContentType()
+            .contentType(.applicationXML)
             .post(validateBodyAs: HttpBinResponse.self)
 
         let result = TestResult(
