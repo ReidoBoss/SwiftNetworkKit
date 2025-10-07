@@ -5,7 +5,6 @@
 //  Created by Stephen T. Sagarino Jr. on 10/2/25.
 //
 
-import Combine
 import Foundation
 
 open class SNKDataRequest: @unchecked Sendable {
@@ -15,25 +14,29 @@ open class SNKDataRequest: @unchecked Sendable {
     /// the URLRequest used for the request
     var urlRequest: URLRequest
     /// the headers of the request
-    /// default is nil
-    /// use the `headers(_:)` function to set
+    /// - default is `nil`
+    /// - use the `headers(_:)` function to set
     var headers: [String: String]?
     /// the parameters of the request
-    /// default is nil
-    /// use the `queryParams(_:)` function to set
+    /// - default is `nil`
+    /// - use the `queryParams(_:)` function to set
     var queryParams: [String: String]?
     /// the body of the request
-    /// default is nil
-    /// use the `body(_:)` function to set
+    /// - default is `nil`
+    /// - use the `body(_:)` function to set
     var body: Encodable?
     /// the decoder used to decode the response
-    /// default is JSONDecoder()
-    /// use the `decoder(_:)` function to set
+    /// - default is `JSONDecoder()`
+    /// - use the `decoder(_:)` function to set
     var decoder: JSONDecoder = JSONDecoder()
     /// the encoder used to encode the request body
-    /// default is JSONEncoder()
-    /// use the `encoder(_:)` function to set
+    /// - Default:  `JSONEncoder()`
+    /// - use the `encoder(_:)` function to set
     var encoder: JSONEncoder = JSONEncoder()
+    /// The Content-Type of the request body.
+    /// - Default: `.json` is used by default.
+    /// - Set using the `contentType(_:)` method.
+    var contentType: SwiftNetworkKit.ContentType = .json
 
     init(
         _ url: URL,
@@ -42,6 +45,28 @@ open class SNKDataRequest: @unchecked Sendable {
         self.urlRequest = URLRequest(url: url)
         self.urlSession = urlSession
     }
+
+    /// Sets the Content-Type for the request body.
+    ///
+    /// Use this method to specify the MIME type of the request body, such as `.json` or `.formURLEncoded`.
+    /// The Content-Type header informs the server about the format of the data being sent.
+    ///
+    /// - Parameter contentType: The desired `ContentType` for the request body.
+    /// - Returns: The same `SNKDataRequest` instance to allow method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///     .contentType(.json)
+    ///     .post()
+    /// ```
+    public func contentType(
+        _ contentType: SwiftNetworkKit.ContentType
+    ) -> SNKDataRequest {
+        self.contentType = contentType
+        return self
+    }
+
     /// Executes an HTTP request and returns the raw response data without decoding.
     ///
     /// This internal method performs the actual HTTP request using URLSession and returns
@@ -825,6 +850,7 @@ extension SNKDataRequest {
     /// - `queryParams`: Dictionary converted to URL query items
     /// - `headers`: Applied as HTTP header fields
     /// - `body`: Set as the HTTP request body
+    /// - `contentType`: Set as the HTTP request body's Content-Type header, defaults to `application/json`
     ///
     /// - Important: This method should only be called after all request configuration is complete.
     fileprivate func request(_ method: HTTPMethod) throws -> URLRequest {
@@ -839,6 +865,8 @@ extension SNKDataRequest {
 
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = self.headers
+
+        self.addHeader("Content-Type", value: self.contentType.rawValue)
 
         if let body = self.body {
             let body = try self.encoder.encode(body)
