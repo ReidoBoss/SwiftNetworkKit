@@ -15,7 +15,7 @@ echo '    "subject-empty": [RuleConfigSeverity.Error, "never"] as const,' >> com
 echo '    "subject-full-stop": [RuleConfigSeverity.Error, "never", "."] as const,' >> commitlint.config.ts
 echo '    "type-case": [RuleConfigSeverity.Error, "always", "lower-case"] as const,' >> commitlint.config.ts
 echo '    "type-empty": [RuleConfigSeverity.Error, "never"] as const,' >> commitlint.config.ts
-echo '    "type-enum": [RuleConfigSeverity.Error, "always", ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]] as [RuleConfigSeverity, RuleConfigCondition, string[]],' >> commitlint.config.ts
+echo '    "type-enum": [RuleConfigSeverity.Error, "always", ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test", "merge"]] as [RuleConfigSeverity, RuleConfigCondition, string[]],' >> commitlint.config.ts
 echo '  },' >> commitlint.config.ts
 echo '  prompt: {' >> commitlint.config.ts
 echo '    questions: {' >> commitlint.config.ts
@@ -32,6 +32,7 @@ echo '          test: { description: "Adding missing tests or correcting existin
 echo '          build: { description: "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)", title: "Builds", emoji: "🛠" },' >> commitlint.config.ts
 echo '          ci: { description: "Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)", title: "Continuous Integrations", emoji: "⚙️" },' >> commitlint.config.ts
 echo '          chore: { description: "Other changes that don'\''t modify src or test files", title: "Chores", emoji: "♻️" },' >> commitlint.config.ts
+echo '          build: { description: "Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)", title: "Builds", emoji: "🛠" },' >> commitlint.config.ts
 echo '          revert: { description: "Reverts a previous commit", title: "Reverts", emoji: "🗑" },' >> commitlint.config.ts
 echo '        },' >> commitlint.config.ts
 echo '      },' >> commitlint.config.ts
