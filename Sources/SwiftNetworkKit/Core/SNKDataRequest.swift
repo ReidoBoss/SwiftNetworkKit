@@ -5,7 +5,6 @@
 //  Created by Stephen T. Sagarino Jr. on 10/2/25.
 //
 
-import Combine
 import Foundation
 
 open class SNKDataRequest: @unchecked Sendable {
@@ -15,25 +14,37 @@ open class SNKDataRequest: @unchecked Sendable {
     /// the URLRequest used for the request
     var urlRequest: URLRequest
     /// the headers of the request
-    /// default is nil
-    /// use the `headers(_:)` function to set
+    /// - default is `nil`
+    /// - use the `headers(_:)` function to set
     var headers: [String: String]?
     /// the parameters of the request
-    /// default is nil
-    /// use the `queryParams(_:)` function to set
+    /// - default is `nil`
+    /// - use the `queryParams(_:)` function to set
     var queryParams: [String: String]?
     /// the body of the request
-    /// default is nil
-    /// use the `body(_:)` function to set
+    /// - default is `nil`
+    /// - use the `body(_:)` function to set
     var body: Encodable?
     /// the decoder used to decode the response
-    /// default is JSONDecoder()
-    /// use the `decoder(_:)` function to set
+    /// - default is `JSONDecoder()`
+    /// - use the `decoder(_:)` function to set
     var decoder: JSONDecoder = JSONDecoder()
     /// the encoder used to encode the request body
-    /// default is JSONEncoder()
-    /// use the `encoder(_:)` function to set
+    /// - Default:  `JSONEncoder()`
+    /// - use the `encoder(_:)` function to set
     var encoder: JSONEncoder = JSONEncoder()
+    /// The Content-Type of the request body.
+    /// - Default: `.json` is used by default.
+    /// - Set using the `contentType(_:)` method.
+    var contentType: SwiftNetworkKit.ContentType = .json
+    /// The timeout interval for the request.
+    /// - Default: `nil`, which uses the URLSession's default timeout.
+    /// - Set using the `timeoutInterval(_:)` method.
+    var timeoutInterval: TimeInterval?
+    /// The cache policy for the request.
+    /// - Default: `nil`, which uses the URLSession's default cache policy.
+    /// - Set using the `cachePolicy(_:)` method.
+    var cachePolicy: URLRequest.CachePolicy?
 
     init(
         _ url: URL,
@@ -42,6 +53,73 @@ open class SNKDataRequest: @unchecked Sendable {
         self.urlRequest = URLRequest(url: url)
         self.urlSession = urlSession
     }
+
+    /// Sets the cache policy for the request.
+    ///
+    /// Use this method to specify how the request should interact with the local cache.
+    /// The cache policy determines whether the request should use cached data, ignore the cache,
+    /// or fall back to the cache if the network is unavailable.
+    ///
+    /// - Parameter cachePolicy: The `URLRequest.CachePolicy` to use for this request.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///     .cachePolicy(.reloadIgnoringLocalCacheData)
+    ///     .get()
+    /// ```
+    ///
+    /// - Note: If not set, the default cache policy of the underlying `URLSession` is used.
+    public func cachePolicy(
+        _ cachePolicy: URLRequest.CachePolicy
+    ) -> SNKDataRequest {
+        self.cachePolicy = cachePolicy
+        return self
+    }
+
+    /// Sets the timeout interval for the request.
+    ///
+    /// Use this method to specify how long (in seconds) the request should wait before timing out.
+    /// If not set, the default timeout interval of the underlying `URLSession` is used.
+    ///
+    /// - Parameter timeoutInterval: The timeout interval, in seconds.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///     .timeoutInterval(30)
+    ///     .get()
+    /// ```
+    public func timeoutInterval(
+        _ timeoutInterval: TimeInterval
+    ) -> SNKDataRequest {
+        self.timeoutInterval = timeoutInterval
+        return self
+    }
+
+    /// Sets the Content-Type for the request body.
+    ///
+    /// Use this method to specify the MIME type of the request body, such as `.json` or `.formURLEncoded`.
+    /// The Content-Type header informs the server about the format of the data being sent.
+    ///
+    /// - Parameter contentType: The desired `ContentType` for the request body.
+    /// - Returns: The same `SNKDataRequest` instance to allow method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///     .contentType(.json)
+    ///     .post()
+    /// ```
+    public func contentType(
+        _ contentType: SwiftNetworkKit.ContentType
+    ) -> SNKDataRequest {
+        self.contentType = contentType
+        return self
+    }
+
     /// Executes an HTTP request and returns the raw response data without decoding.
     ///
     /// This internal method performs the actual HTTP request using URLSession and returns
@@ -158,7 +236,7 @@ open class SNKDataRequest: @unchecked Sendable {
                 return SNKResponse(
                     data: nil,
                     status: validatedOutput.status,
-                    error: nil
+                    error: validatedOutput.status?.asError()
                 )
             }
 
@@ -727,6 +805,29 @@ extension SNKDataRequest {
         self.body = body
         return self
     }
+
+    /// Sets the request body using raw `Data`.
+    ///
+    /// Use this method to provide a pre-encoded or binary payload as the HTTP request body.
+    /// This is useful for sending files, images, or custom-encoded data formats.
+    ///
+    /// - Parameter body: The raw `Data` to include in the request body.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let imageData: Data = ... // Load image data
+    /// let request = SNKDataRequest(url)
+    ///     .contentType(.imagePNG)
+    ///     .body(imageData)
+    ///     .post()
+    /// ```
+    ///
+    /// - Important: Ensure the `Content-Type` header matches the format of your body data.
+    public func body(_ body: Data) -> SNKDataRequest {
+        self.body = body
+        return self
+    }
 }
 
 // MARK: - Helper Functions
@@ -806,6 +907,7 @@ extension SNKDataRequest {
     /// 2. Appends query parameters to the URL if any are configured
     /// 3. Sets the HTTP method from the provided parameter
     /// 4. Applies all configured headers to the request
+    ///     - Automatically adds the `Content-Type` header based on `contentType`, default is `application/json`
     /// 5. Attaches the request body data if present
     ///
     /// ## Query Parameter Handling
@@ -825,6 +927,7 @@ extension SNKDataRequest {
     /// - `queryParams`: Dictionary converted to URL query items
     /// - `headers`: Applied as HTTP header fields
     /// - `body`: Set as the HTTP request body
+    /// - `contentType`: Set as the HTTP request body's Content-Type header, defaults to `application/json`
     ///
     /// - Important: This method should only be called after all request configuration is complete.
     fileprivate func request(_ method: HTTPMethod) throws -> URLRequest {
@@ -839,6 +942,16 @@ extension SNKDataRequest {
 
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = self.headers
+
+        self.addHeader("Content-Type", value: self.contentType.rawValue)
+
+        if let timeoutInterval = self.timeoutInterval {
+            request.timeoutInterval = timeoutInterval
+        }
+
+        if let cachePolicy = self.cachePolicy {
+            request.cachePolicy = cachePolicy
+        }
 
         if let body = self.body {
             let body = try self.encoder.encode(body)
