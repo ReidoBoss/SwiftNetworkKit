@@ -183,7 +183,7 @@ open class SNKDataRequest: @unchecked Sendable {
                 return SNKResponse(
                     data: nil,
                     status: validatedOutput.status,
-                    error: nil
+                    error: validatedOutput.status?.asError()
                 )
             }
 
@@ -749,6 +749,29 @@ extension SNKDataRequest {
     ///
     /// - Important: Ensure the Content-Type header matches the format of your body data.
     public func body(_ body: Encodable) -> SNKDataRequest {
+        self.body = body
+        return self
+    }
+
+    /// Sets the request body using raw `Data`.
+    ///
+    /// Use this method to provide a pre-encoded or binary payload as the HTTP request body.
+    /// This is useful for sending files, images, or custom-encoded data formats.
+    ///
+    /// - Parameter body: The raw `Data` to include in the request body.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let imageData: Data = ... // Load image data
+    /// let request = SNKDataRequest(url)
+    ///     .contentType(.imagePNG)
+    ///     .body(imageData)
+    ///     .post()
+    /// ```
+    ///
+    /// - Important: Ensure the `Content-Type` header matches the format of your body data.
+    public func body(_ body: Data) -> SNKDataRequest {
         self.body = body
         return self
     }
