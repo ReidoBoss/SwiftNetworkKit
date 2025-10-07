@@ -37,6 +37,14 @@ open class SNKDataRequest: @unchecked Sendable {
     /// - Default: `.json` is used by default.
     /// - Set using the `contentType(_:)` method.
     var contentType: SwiftNetworkKit.ContentType = .json
+    /// The timeout interval for the request.
+    /// - Default: `nil`, which uses the URLSession's default timeout.
+    /// - Set using the `timeoutInterval(_:)` method.
+    var timeoutInterval: TimeInterval?
+    /// The cache policy for the request.
+    /// - Default: `nil`, which uses the URLSession's default cache policy.
+    /// - Set using the `cachePolicy(_:)` method.
+    var cachePolicy: URLRequest.CachePolicy?
 
     init(
         _ url: URL,
@@ -44,6 +52,51 @@ open class SNKDataRequest: @unchecked Sendable {
     ) {
         self.urlRequest = URLRequest(url: url)
         self.urlSession = urlSession
+    }
+
+    /// Sets the cache policy for the request.
+    ///
+    /// Use this method to specify how the request should interact with the local cache.
+    /// The cache policy determines whether the request should use cached data, ignore the cache,
+    /// or fall back to the cache if the network is unavailable.
+    ///
+    /// - Parameter cachePolicy: The `URLRequest.CachePolicy` to use for this request.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///     .cachePolicy(.reloadIgnoringLocalCacheData)
+    ///     .get()
+    /// ```
+    ///
+    /// - Note: If not set, the default cache policy of the underlying `URLSession` is used.
+    public func cachePolicy(
+        _ cachePolicy: URLRequest.CachePolicy
+    ) -> SNKDataRequest {
+        self.cachePolicy = cachePolicy
+        return self
+    }
+
+    /// Sets the timeout interval for the request.
+    ///
+    /// Use this method to specify how long (in seconds) the request should wait before timing out.
+    /// If not set, the default timeout interval of the underlying `URLSession` is used.
+    ///
+    /// - Parameter timeoutInterval: The timeout interval, in seconds.
+    /// - Returns: The same `SNKDataRequest` instance to enable method chaining.
+    ///
+    /// ## Example
+    /// ```swift
+    /// let request = SNKDataRequest(url)
+    ///     .timeoutInterval(30)
+    ///     .get()
+    /// ```
+    public func timeoutInterval(
+        _ timeoutInterval: TimeInterval
+    ) -> SNKDataRequest {
+        self.timeoutInterval = timeoutInterval
+        return self
     }
 
     /// Sets the Content-Type for the request body.
@@ -854,6 +907,7 @@ extension SNKDataRequest {
     /// 2. Appends query parameters to the URL if any are configured
     /// 3. Sets the HTTP method from the provided parameter
     /// 4. Applies all configured headers to the request
+    ///     - Automatically adds the `Content-Type` header based on `contentType`, default is `application/json`
     /// 5. Attaches the request body data if present
     ///
     /// ## Query Parameter Handling
@@ -890,6 +944,14 @@ extension SNKDataRequest {
         request.allHTTPHeaderFields = self.headers
 
         self.addHeader("Content-Type", value: self.contentType.rawValue)
+
+        if let timeoutInterval = self.timeoutInterval {
+            request.timeoutInterval = timeoutInterval
+        }
+
+        if let cachePolicy = self.cachePolicy {
+            request.cachePolicy = cachePolicy
+        }
 
         if let body = self.body {
             let body = try self.encoder.encode(body)
